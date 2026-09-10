@@ -1,0 +1,8 @@
+# Runtime
+langgraph>=1.0
+
+# Optional: hosted reasoner (only used when ANTHROPIC_API_KEY is set)
+# anthropic>=0.40
+
+# Dev
+pytest>=8

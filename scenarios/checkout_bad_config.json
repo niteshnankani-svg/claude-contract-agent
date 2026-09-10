@@ -1,0 +1,41 @@
+{
+  "thread_id": "checkout-bad-config-1",
+  "alert": {
+    "service": "checkout",
+    "environment": "prod",
+    "tenant": "acme",
+    "signal": "http_5xx_ratio_high",
+    "window_minutes": 15
+  },
+  "cluster": {
+    "services": [
+      {
+        "name": "checkout",
+        "active_revision": "checkout-7f2c",
+        "resource_version": 41,
+        "dependencies": ["payments", "inventory"],
+        "revisions": [
+          {
+            "name": "checkout-6a1b",
+            "healthy": true,
+            "config": {"CONN_POOL": 50, "TIMEOUT_MS": 800, "FEATURE_NEW_TAX": false}
+          },
+          {
+            "name": "checkout-7f2c",
+            "healthy": false,
+            "config": {"CONN_POOL": 5, "TIMEOUT_MS": 800, "FEATURE_NEW_TAX": true}
+          }
+        ]
+      },
+      {
+        "name": "payments",
+        "active_revision": "payments-1",
+        "resource_version": 12,
+        "dependencies": [],
+        "revisions": [
+          {"name": "payments-1", "healthy": true, "config": {}}
+        ]
+      }
+    ]
+  }
+}
