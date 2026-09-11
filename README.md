@@ -1,5 +1,12 @@
 # claude-contract-agent
 
+[![CI](https://github.com/niteshnankani-svg/claude-contract-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/niteshnankani-svg/claude-contract-agent/actions/workflows/ci.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776ab.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![Built with LangGraph](https://img.shields.io/badge/built%20with-LangGraph-1c3c3c.svg)](https://github.com/langchain-ai/langgraph)
+[![Tests](https://img.shields.io/badge/tests-8%20passing-2dd4bf.svg)](tests/test_graph.py)
+[![Live demo](https://img.shields.io/badge/demo-vercel-000.svg?logo=vercel)](https://claude-contract-agent.vercel.app)
+
 A **LangGraph incident investigation & controlled remediation agent** for
 Kubernetes-based applications. It takes an alert, gathers bounded evidence,
 reasons over a hypothesis ledger, proposes a scoped remediation, **pauses for
@@ -16,6 +23,15 @@ demonstration of applied agent engineering.
 > *simulated* fault-injected cluster. It is not a validated product. See
 > [`docs/DESIGN.md`](docs/DESIGN.md) → "What this is not".
 
+## Live demo
+
+An interactive, animated walkthrough of the agent's incident run — built with
+**Vite + React + TypeScript, Tailwind CSS and Framer Motion** and deployed on
+**Vercel**. Drive the run yourself, approve or reject the remediation at the
+human-review gate, and watch recovery get verified.
+
+> 🔗 **Live:** **https://claude-contract-agent.vercel.app** &nbsp;·&nbsp; source in [`web/`](web/)
+
 ## Why these choices
 
 - **Framework — LangGraph.** The hiring evidence in the brief repeatedly names
@@ -27,6 +43,44 @@ demonstration of applied agent engineering.
 - **Safety in code, not in the model.** A deterministic policy gate
   (`policy.py`) owns everything that can authorise a side effect. The reasoner
   proposes; policy disposes.
+
+## Architecture
+
+The agent is a LangGraph state machine. It loops through evidence collection and
+diagnosis, then routes through a deterministic policy gate and a **durable
+human-approval interrupt** before any write. Recovery is confirmed with a fresh
+application-level probe — not a control-plane 200.
+
+```mermaid
+flowchart TD
+    START([alert]) --> intake[intake<br/>scope + dedup]
+    intake --> plan{plan<br/>next check?}
+    plan -->|need evidence| collect[collect<br/>telemetry · deploy · topology]
+    collect --> diagnose[diagnose<br/>update hypotheses]
+    diagnose -->|keep looking| plan
+    diagnose -->|evidence exhausted| rplan[remediation_plan<br/>propose allowlisted action]
+    plan -->|done| rplan
+    rplan -->|no safe action| ESC([escalate])
+    rplan -->|action| policy{policy_check<br/>scope · version · budget}
+    policy -->|deny| ESC
+    policy -->|allow| review[human_review ⏸<br/>durable interrupt]
+    review -->|reject| ESC
+    review -->|approve| exec[executor<br/>idempotent + preconditions]
+    exec --> verify{verifier<br/>probe + error window}
+    verify -->|recovered| DONE([resolved])
+    verify -->|retry budget| plan
+    verify -->|exhausted| ESC
+
+    classDef gate fill:#1c2733,stroke:#fbbf24,color:#fbbf24;
+    classDef write fill:#1c2733,stroke:#fb7185,color:#fb7185;
+    classDef ok fill:#12241f,stroke:#2dd4bf,color:#2dd4bf;
+    class policy,review gate;
+    class exec write;
+    class DONE,verify ok;
+```
+
+An animated, interactive walkthrough of this exact flow is deployed as a web
+frontend — see [`web/`](web/) and **[Live demo](#live-demo)**.
 
 ## Quickstart
 

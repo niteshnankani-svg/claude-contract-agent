@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  margin: 0;
+  background: #070b11;
+}
+
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  color: #e6edf3;
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(1100px 600px at 12% -8%, rgba(45, 212, 191, 0.10), transparent 60%),
+    radial-gradient(900px 620px at 92% 4%, rgba(167, 139, 250, 0.10), transparent 55%),
+    #070b11;
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(45, 212, 191, 0.3);
+}
+
+/* thin custom scrollbar for the console */
+.scroll-slim::-webkit-scrollbar {
+  width: 8px;
+}
+.scroll-slim::-webkit-scrollbar-thumb {
+  background: #26344a;
+  border-radius: 8px;
+}
+
+.grid-noise {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
